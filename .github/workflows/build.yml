@@ -1,0 +1,61 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [aarch64-apple-darwin, x86_64-apple-darwin]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action/setup@v1
+
+      - name: Add Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Observable ${{ github.ref_name }}"
+          releaseBody: "Download the macOS app below."
+          releaseDraft: false
+          prerelease: false
+          args: --target ${{ matrix.target }}
+
+  update-download-page:
+    needs: build-macos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update download page with latest version
+        run: |
+          VERSION=${{ github.ref_name }}
+          sed -i "s|__VERSION__|${VERSION}|g" download-page/index.html
+
+      - name: Upload download page artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: download-page
+          path: download-page/

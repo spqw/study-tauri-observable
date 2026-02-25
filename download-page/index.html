@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observable for macOS — Download</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 640px;
+      text-align: center;
+    }
+    .icon {
+      width: 128px;
+      height: 128px;
+      margin: 0 auto 32px;
+      background: #3b5fc0;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(59, 95, 192, 0.3);
+    }
+    .icon span {
+      font-size: 72px;
+      font-weight: 700;
+      color: white;
+    }
+    h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #6e6e73;
+      margin-bottom: 40px;
+      line-height: 1.5;
+    }
+    .downloads {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #3b5fc0;
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .download-btn:hover {
+      background: #2d4da0;
+      transform: translateY(-1px);
+    }
+    .download-btn:active {
+      transform: translateY(0);
+    }
+    .chip {
+      font-size: 12px;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .meta {
+      font-size: 14px;
+      color: #86868b;
+    }
+    .meta a {
+      color: #3b5fc0;
+      text-decoration: none;
+    }
+    .meta a:hover {
+      text-decoration: underline;
+    }
+    .version {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #86868b;
+      background: #e8e8ed;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon"><span>O</span></div>
+    <h1>Observable for macOS</h1>
+    <p class="subtitle">
+      A native macOS app for Observable — the platform for data exploration,
+      analysis, and visualization. Built with Tauri.
+    </p>
+
+    <div class="downloads" id="downloads">
+      <a class="download-btn" id="dl-arm" href="#" onclick="download('arm')">
+        &#11015; Download <span class="chip">Apple Silicon</span>
+      </a>
+      <a class="download-btn" id="dl-intel" href="#" onclick="download('intel')">
+        &#11015; Download <span class="chip">Intel</span>
+      </a>
+    </div>
+
+    <p class="meta">
+      Requires macOS 10.15 or later.
+      <br />
+      <a href="https://github.com/spqw/study-tauri-observable" target="_blank">View source on GitHub</a>
+    </p>
+
+    <span class="version" id="version">Loading latest version...</span>
+  </div>
+
+  <script>
+    const REPO = 'spqw/study-tauri-observable';
+
+    async function fetchLatestRelease() {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+        if (!res.ok) throw new Error('No release found');
+        const release = await res.json();
+        document.getElementById('version').textContent = release.tag_name;
+
+        const assets = release.assets || [];
+        const armDmg = assets.find(a => a.name.includes('aarch64') && a.name.endsWith('.dmg'));
+        const intelDmg = assets.find(a => a.name.includes('x64') && a.name.endsWith('.dmg'));
+
+        if (armDmg) {
+          document.getElementById('dl-arm').href = armDmg.browser_download_url;
+          document.getElementById('dl-arm').onclick = null;
+        }
+        if (intelDmg) {
+          document.getElementById('dl-intel').href = intelDmg.browser_download_url;
+          document.getElementById('dl-intel').onclick = null;
+        }
+      } catch (e) {
+        document.getElementById('version').textContent = 'No release yet — push a tag to build';
+      }
+    }
+
+    function download(arch) {
+      alert('No release available yet. Push a git tag (e.g. v0.1.0) to trigger a build.');
+    }
+
+    fetchLatestRelease();
+  </script>
+</body>
+</html>

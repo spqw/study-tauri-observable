@@ -1,0 +1,19 @@
+{
+  "name": "study-tauri-observable",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native macOS app embedding Observable using Tauri",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spqw/study-tauri-observable.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.0"
+  }
+}

@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: dtolnay/rust-action/setup@v1
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Add Rust target
         run: rustup target add ${{ matrix.target }}
@@ -42,20 +42,3 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: --target ${{ matrix.target }}
-
-  update-download-page:
-    needs: build-macos
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Update download page with latest version
-        run: |
-          VERSION=${{ github.ref_name }}
-          sed -i "s|__VERSION__|${VERSION}|g" download-page/index.html
-
-      - name: Upload download page artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: download-page
-          path: download-page/
